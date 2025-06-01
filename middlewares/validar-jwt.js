@@ -1,6 +1,7 @@
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken'); 
 const { userModel } = require('../models/index');
 
+// Middleware para validar token JWT
 const validarJWT = (req, res, next) => {
     const token = req.header('x-token') || req.query.token;
 
@@ -23,7 +24,8 @@ const validarJWT = (req, res, next) => {
     }
 };
 
-const validarAdmin = async (req, res, next) => {
+// Middleware para validar si el usuario es coordinador
+const validarCoordinador = async (req, res, next) => {
     try {
         const usuario = await userModel.findById(req.uid);
         
@@ -34,17 +36,17 @@ const validarAdmin = async (req, res, next) => {
             });
         }
 
-        if (usuario.rol !== 'ADMIN_ROLE') {
+        if (usuario.rol !== 'coordinador') {
             return res.status(403).json({
                 ok: false,
-                msg: 'Acceso restringido: se requiere rol de administrador'
+                msg: 'Acceso restringido: se requiere rol de coordinador'
             });
         }
 
         req.usuario = usuario; // Adjunta el usuario al request
         next();
     } catch (error) {
-        console.error('Error en validarAdmin:', error);
+        console.error('Error en validarCoordinador:', error);
         res.status(500).json({
             ok: false,
             msg: 'Error interno del servidor'
@@ -52,6 +54,7 @@ const validarAdmin = async (req, res, next) => {
     }
 };
 
+// Middleware para validar si es admin o el mismo usuario
 const validarAdminOMismoUsuario = async (req, res, next) => {
     try {
         const usuario = await userModel.findById(req.uid);
@@ -84,6 +87,6 @@ const validarAdminOMismoUsuario = async (req, res, next) => {
 
 module.exports = {
     validarJWT,
-    validarAdmin,
+    validarCoordinador,
     validarAdminOMismoUsuario
 };
