@@ -4,7 +4,8 @@ const models = {
      solicitudModel:require('./nosql/solicitud.model'),
      materiaModel:require('./nosql/materia.model'),
      franjaHorariaModel:require('./nosql/franjaHoraria.model'),
-     
+     feedbackModel:require('./nosql/feedback.model'),
+     agendaModel:require('./nosql/agenda.model'),
      ///itemModel:require('./nosql/item.model'),
      //facturaModel:require('./nosql/factura.model'),
      //redemptionCodeModel:require('./nosql/redemptionCode'),

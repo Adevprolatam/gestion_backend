@@ -1,5 +1,5 @@
 const { response } = require('express');
-const { solicitudModel } = require('../models/index');
+const { solicitudModel,agendaModel } = require('../models/index');
 const { registrarAuditoria } = require("../helpers/auditoria");
 
 const crearSolicitudTutoria = async (req, res = response) => {
@@ -76,33 +76,80 @@ const actualizarEstadoSolicitud = async (req, res = response) => {
     const usuarioId = req.uid;
 
     try {
-        // Validar estados permitidos
-        const estadosPermitidos = ['PENDIENTE', 'APROBADA', 'RECHAZADA', 'COMPLETADA', 'CANCELADA'];
+        const estadosPermitidos = ['PENDIENTE', 'APROBADA', 'RECHAZADA', 'CANCELADA'];
         if (!estadosPermitidos.includes(estado)) {
-            return res.status(400).json({
-                ok: false,
-                msg: 'Estado no válido'
+            await registrarAuditoria({
+                usuarioId,
+                accion: 'ERROR_ACTUALIZAR_ESTADO',
+                descripcion: `Intento de cambio a estado no permitido: ${estado}`,
+                entidad: 'SolicitudTutoria',
+                entidadId: id,
+                req
             });
+            return res.status(400).json({ ok: false, msg: 'Estado no válido' });
         }
 
         const solicitud = await solicitudModel.findById(id);
         if (!solicitud) {
-            return res.status(404).json({
-                ok: false,
-                msg: 'Solicitud no encontrada'
+            await registrarAuditoria({
+                usuarioId,
+                accion: 'ERROR_ACTUALIZAR_ESTADO',
+                descripcion: `Solicitud no encontrada: ${id}`,
+                entidad: 'SolicitudTutoria',
+                req
+            });
+            return res.status(404).json({ ok: false, msg: 'Solicitud no encontrada' });
+        }
+
+        // Validar transición de estados
+        if (solicitud.estado === 'APROBADA' && estado === 'PENDIENTE') {
+            await registrarAuditoria({
+                usuarioId,
+                accion: 'INTENTO_REVERTIR_APROBADA',
+                descripcion: `Intento de revertir solicitud aprobada a pendiente: ${id}`,
+                entidad: 'SolicitudTutoria',
+                entidadId: id,
+                req
+            });
+            return res.status(400).json({ 
+                ok: false, 
+                msg: 'No se puede revertir una solicitud aprobada' 
             });
         }
 
-        // Guardar el estado anterior para el registro de auditoría
         const estadoAnterior = solicitud.estado;
-
-        // Actualizar el estado
         solicitud.estado = estado;
+
+        // CREAR AGENDA SI SE APRUEBA
+        if (estado === 'APROBADA') {
+            const agendaExistente = await agendaModel.findOne({ solicitud: id });
+            if (!agendaExistente) {
+                const nuevaAgenda = await agendaModel.create({ solicitud: id });
+                
+                await registrarAuditoria({
+                    usuarioId,
+                    accion: 'CREAR_AGENDA',
+                    descripcion: `Agenda creada para solicitud ${id}`,
+                    entidad: 'Agenda',
+                    entidadId: nuevaAgenda._id, // Usar ID de la agenda, no de la solicitud
+                    req
+                });
+            } else {
+                await registrarAuditoria({
+                    usuarioId,
+                    accion: 'AGENDA_DUPLICADA',
+                    descripcion: `Intento de crear agenda duplicada para solicitud ${id}`,
+                    entidad: 'Agenda',
+                    entidadId: agendaExistente._id,
+                    req
+                });
+            }
+        }
+
         await solicitud.save();
 
-        // Registrar auditoría del cambio
         await registrarAuditoria({
-            usuarioId: usuarioId,
+            usuarioId,
             accion: 'ACTUALIZAR_ESTADO_SOLICITUD',
             descripcion: `Cambió estado de "${estadoAnterior}" a "${estado}"`,
             entidad: 'SolicitudTutoria',
@@ -110,24 +157,19 @@ const actualizarEstadoSolicitud = async (req, res = response) => {
             req
         });
 
-        res.json({
-            ok: true,
-            solicitud
-        });
+        res.json({ ok: true, solicitud });
 
     } catch (error) {
         console.error(error);
         await registrarAuditoria({
-            usuarioId: usuarioId,
+            usuarioId,
             accion: 'ERROR_ACTUALIZAR_ESTADO_SOLICITUD',
-            descripcion: `Error al actualizar estado: ${error.message}`,
+            descripcion: `Error: ${error.message} | Solicitud: ${id} | Estado intentado: ${estado}`,
             entidad: 'SolicitudTutoria',
+            entidadId: id,
             req
         });
-        res.status(500).json({
-            ok: false,
-            msg: 'Error al actualizar estado de la solicitud'
-        });
+        res.status(500).json({ ok: false, msg: 'Error al actualizar estado' });
     }
 };
 

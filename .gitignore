@@ -1,2 +1,9 @@
 # Node modules
 node_modules/
+
+# Build output  
+.env    
+dist/
+# Logs
+logs/
+# Dependency directories

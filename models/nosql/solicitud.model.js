@@ -11,7 +11,8 @@ const SolicitudTutoriaSchema = new mongoose.Schema({
         ref: 'Usuario'
     },
     materia: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Materia',
         required: true
     },
     motivo: {
@@ -19,7 +20,11 @@ const SolicitudTutoriaSchema = new mongoose.Schema({
         required: true
     },
     descripcion: String,
-    horarioPreferido: String,
+    horarioPreferido: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'FranjaHoraria',
+        required: true
+    },
     estado: {
         type: String,
         enum: ['PENDIENTE', 'APROBADA', 'RECHAZADA', 'COMPLETADA', 'CANCELADA'],

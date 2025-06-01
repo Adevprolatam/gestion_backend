@@ -11,6 +11,11 @@ const {
   obtenerFranjasDisponibles
 } = require('../controllers/franjaHoraria.controller');
 
+const {  
+  marcarSesionRealizada,
+  obtenerSesionesUsuario
+} = require("../controllers/agenda.controller");
+
 // Rutas para tutores (requieren autenticación y rol de tutor)
 router.post('/', 
   [
@@ -27,12 +32,24 @@ router.post('/',
   ], 
   crearFranjaHoraria
 );
-//router.post('/', [validarJWT, validarTutor ,validarCampos], crearFranjaHoraria);
 
 // Ruta para obtener las franjas horarias de un tutor
 router.get('/mis-franjas', [validarJWT, validarTutor], obtenerFranjasTutor);
 
 // Ruta pública para estudiantes
 router.get('/disponibles', obtenerFranjasDisponibles);
+
+// Ruta para marcar sesión realizada
+router.patch('/sesion/:id', 
+  [
+    validarJWT,
+    validarTutor, 
+    check('id', 'El ID de la agenda es obligatorio').not().isEmpty(),
+    validarCampos
+  ], 
+  marcarSesionRealizada
+);
+// Ruta para obtener sesiones de un usuario
+router.get('/sesiones',[validarJWT], obtenerSesionesUsuario);
 
 module.exports = router;

@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const { userModel } = require('../models/index');
 
 // Middleware para validar token JWT
-const validarJWT = (req, res, next) => {
+const validarJWT = async (req, res, next) => {
     const token = req.header('x-token') || req.query.token;
 
     if (!token) {
@@ -15,6 +15,15 @@ const validarJWT = (req, res, next) => {
     try {
         const { uid } = jwt.verify(token, process.env.JWT_SECRET);
         req.uid = uid;
+
+        // Buscar al usuario y añadir su rol
+        const usuario = await userModel.findById(uid);
+        if (!usuario) {
+            return res.status(404).json({ ok: false, msg: 'Usuario no encontrado' });
+        }
+
+        req.rol = usuario.rol; // <<--- Aquí estás agregando el rol correctamente
+
         next();
     } catch (error) {
         return res.status(401).json({
@@ -23,6 +32,7 @@ const validarJWT = (req, res, next) => {
         });
     }
 };
+
 
 // Middleware para validar si el usuario es coordinador
 const validarCoordinador = async (req, res, next) => {
