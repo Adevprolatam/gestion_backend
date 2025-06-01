@@ -8,12 +8,10 @@ const {
     crearSolicitudTutoria,
     getSolicitudesEstudiante,
     actualizarEstadoSolicitud
-} = require("../controllers/solicitud.contoller");
+} = require("../controllers/solicitud.controller");
 
 // Obtener todos los trámites del estudiante autenticado
 router.get("/tutoria", [validarJWT,validarCoordinador], getSolicitudesEstudiante);
-router.patch("/tutoria/:id",[validarJWT,validarCoordinador], getSolicitudesEstudiante);
-
 
 // Crear un nuevo trámite con estudiante extraído del token
 router.post("/tutoria", [

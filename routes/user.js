@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const { check } = require('express-validator'); // Importa check aquí
 const router = Router();
+const { validarJWT, validarCoordinador } = require('../middlewares/validar-jwt');
 const { validarCampos } = require('../middlewares/validar-campos');
 
 const {
@@ -12,8 +13,8 @@ const {
 } = require("../controllers/user.controller");
 
 // Routes para usuario
-router.get("/", getUsuarios);
-router.get("/:id", getUsuariosByID);
+router.get("/",[validarJWT,validarCoordinador], getUsuarios);
+router.get("/:id",[validarJWT,validarCoordinador], getUsuariosByID);
 
 // Crear usuario
 router.post('/', 
@@ -30,6 +31,6 @@ router.post('/',
 //router.put("/:id", actualizarUsuario);
 
 // Borrar usuario
-router.delete("/:id", borrarUsuario);
+router.delete("/:id",[validarJWT,validarCoordinador], borrarUsuario);
 
 module.exports = router;

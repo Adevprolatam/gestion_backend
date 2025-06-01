@@ -53,6 +53,35 @@ const validarCoordinador = async (req, res, next) => {
         });
     }
 };
+// Middleware para validar si el usuario es tutor
+const validarTutor = async (req, res, next) => {
+    try {
+        const usuario = await userModel.findById(req.uid);
+        
+        if (!usuario) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'Usuario no encontrado'
+            });
+        }
+
+        if (usuario.rol !== 'tutor', usuario.rol !== 'coordinador') {
+            return res.status(403).json({
+                ok: false,
+                msg: 'Acceso restringido: se requiere rol de tutor o coordinador'
+            });
+        }
+
+        req.usuario = usuario; // Adjunta el usuario al request
+        next();
+    } catch (error) {
+        console.error('Error en validarTutor:', error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Error interno del servidor'
+        });
+    }
+};
 
 // Middleware para validar si es admin o el mismo usuario
 const validarAdminOMismoUsuario = async (req, res, next) => {
@@ -88,5 +117,6 @@ const validarAdminOMismoUsuario = async (req, res, next) => {
 module.exports = {
     validarJWT,
     validarCoordinador,
+    validarTutor,
     validarAdminOMismoUsuario
 };
