@@ -8,15 +8,24 @@ const {
     submitFeedback,
 } = require("../controllers/feedback.controller");
 
+const {
+    obtenerEstadisticasSemanales,
+} = require("../controllers/estadisticas.controller");
 
+// Ruta para feedback (existente)
 router.post('/feedback', [
     validarJWT,
-    check('solicitudId', 'El ID de la solicitud es obligatorio').not().isEmpty(),
+    check('agendaId', 'El ID de la agenda es obligatorio').not().isEmpty(),
     check('rating', 'La calificación es obligatoria').isInt({ min: 1, max: 5 }),
     check('comentario', 'El comentario es opcional pero debe ser una cadena si se proporciona').optional().isString(),
     validarCampos
 ], submitFeedback);
-// http://localhost:3000/api/anality/feedback
 
+// Nuevas rutas para estadísticas
+router.get('/estadisticas/semanal', [
+    validarJWT,
+    validarCoordinador
+], obtenerEstadisticasSemanales);
+;
 
 module.exports = router;

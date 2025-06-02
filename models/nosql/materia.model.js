@@ -19,7 +19,7 @@ const MateriaSchema = new mongoose.Schema({
   },
   departamento: {
     type: String,
-    enum: ['Computacion', 'Electronica', 'Mecanica', 'Administracion'],
+    enum: ['Computacion', 'Electronica', 'Mecanica', 'Administracion', 'Matematicas', 'Medicina'],
     required: true
   },
   nivel: {
@@ -34,11 +34,16 @@ const MateriaSchema = new mongoose.Schema({
   },
   carreras: {
     type: String,
-    enum: ['Software', 'Electronica', 'Mecanica'],
+    enum: ['Software', 'Electronica', 'Mecanica','Psicologia'],
   },
   activa: {
     type: Boolean,
     default: true
+  }, 
+   tutor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Usuario',
+    required: false
   }
 }, {
   timestamps: true,

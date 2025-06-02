@@ -6,7 +6,7 @@ const { validarJWT, validarCoordinador } = require('../middlewares/validar-jwt')
 
 const {
     crearMateria,
-    getMaterias
+    getMaterias,
 } = require("../controllers/materia.controller");
 
 // Rutas para manejar las materias

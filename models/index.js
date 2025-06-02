@@ -6,10 +6,8 @@ const models = {
      franjaHorariaModel:require('./nosql/franjaHoraria.model'),
      feedbackModel:require('./nosql/feedback.model'),
      agendaModel:require('./nosql/agenda.model'),
-     ///itemModel:require('./nosql/item.model'),
-     //facturaModel:require('./nosql/factura.model'),
-     //redemptionCodeModel:require('./nosql/redemptionCode'),
-     //discountModel:require('./nosql/discount.model')
+     materiaInsModel:require('./nosql/materiaIns.model'),
+     estadisticaModel:require('./nosql/estadistica.model'),
 }
 
 module.exports = models;

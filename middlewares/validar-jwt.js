@@ -75,14 +75,14 @@ const validarTutor = async (req, res, next) => {
             });
         }
 
-        if (usuario.rol !== 'tutor', usuario.rol !== 'coordinador') {
+        if (usuario.rol !== 'tutor' && usuario.rol !== 'coordinador') {
             return res.status(403).json({
                 ok: false,
                 msg: 'Acceso restringido: se requiere rol de tutor o coordinador'
             });
         }
 
-        req.usuario = usuario; // Adjunta el usuario al request
+        req.usuario = usuario;
         next();
     } catch (error) {
         console.error('Error en validarTutor:', error);
@@ -92,7 +92,6 @@ const validarTutor = async (req, res, next) => {
         });
     }
 };
-
 // Middleware para validar si es admin o el mismo usuario
 const validarAdminOMismoUsuario = async (req, res, next) => {
     try {

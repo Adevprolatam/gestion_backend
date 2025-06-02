@@ -97,7 +97,32 @@ const obtenerSesionesUsuario = async (req, res) => {
 };
 
 
+const allAgenda = async (filters = {}, populate = true) => {
+  let query = agendaModel.find(filters);
+  
+  if (populate) {
+    query = query.populate({
+      path: 'solicitud',
+      populate: [
+        { path: 'estudiante', select: 'nombre apellido' },
+        { path: 'tutor', select: 'nombre apellido email rol' },
+        { 
+          path: 'materia', 
+          select: 'materia nrc tutor',
+          populate: {
+            path: 'tutor',
+            select: 'nombre email rol'
+          }
+        }
+      ]
+    });
+  }
+  
+  return await query.exec();
+};
+
 module.exports = {
     marcarSesionRealizada,
-    obtenerSesionesUsuario
+    obtenerSesionesUsuario,
+    allAgenda
 };

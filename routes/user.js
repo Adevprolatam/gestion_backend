@@ -4,6 +4,7 @@ const router = Router();
 const { validarJWT, validarCoordinador } = require('../middlewares/validar-jwt');
 const { validarCampos } = require('../middlewares/validar-campos');
 
+// USUARIO
 const {
     crearUsuario,
     getUsuarios,
@@ -11,6 +12,8 @@ const {
     actualizarUsuario,
     borrarUsuario
 } = require("../controllers/user.controller");
+
+
 
 // Routes para usuario
 router.get("/",[validarJWT,validarCoordinador], getUsuarios);
